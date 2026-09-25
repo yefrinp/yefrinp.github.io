@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Línea de Tiempo — Historia de la Filosofía</title>
+<style>
+  :root{
+    --bg:#0f1226; --bg2:#171a3a; --card:#1e2350; --line:#6c7bff;
+    --accent:#ffb454; --accent2:#5ad2ff; --text:#eef1ff; --muted:#aab0e0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:radial-gradient(1200px 600px at 20% -10%,#2a2f66 0%,var(--bg) 55%);
+    color:var(--text);min-height:100vh;padding:0 0 80px;
+  }
+  header{
+    text-align:center;padding:56px 20px 34px;
+    background:linear-gradient(180deg,rgba(108,123,255,.18),transparent);
+  }
+  header h1{font-size:2.1rem;letter-spacing:.5px;margin-bottom:10px}
+  header p{color:var(--muted);font-size:1.02rem}
+  .datos{
+    max-width:760px;margin:22px auto 0;background:var(--card);
+    border:1px solid rgba(255,255,255,.08);border-radius:16px;
+    padding:18px 24px;display:flex;flex-wrap:wrap;gap:8px 30px;
+    justify-content:center;font-size:.95rem;
+  }
+  .datos b{color:var(--accent2)}
+  .filtros{
+    max-width:960px;margin:34px auto 10px;display:flex;flex-wrap:wrap;
+    gap:10px;justify-content:center;padding:0 16px;
+  }
+  .filtros button{
+    background:var(--card);color:var(--muted);border:1px solid rgba(255,255,255,.12);
+    padding:8px 16px;border-radius:30px;cursor:pointer;font-size:.9rem;
+    transition:.25s;
+  }
+  .filtros button:hover{color:var(--text);border-color:var(--line)}
+  .filtros button.active{background:var(--line);color:#fff;border-color:var(--line)}
+  .timeline{
+    max-width:960px;margin:30px auto 0;position:relative;padding:20px 0;
+  }
+  .timeline::before{
+    content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;
+    background:linear-gradient(var(--accent2),var(--line),var(--accent));
+    transform:translateX(-50%);border-radius:3px;
+  }
+  .item{position:relative;width:50%;padding:14px 40px;opacity:0;
+    transform:translateY(24px);transition:.5s;}
+  .item.show{opacity:1;transform:none}
+  .item:nth-child(odd){left:0;text-align:right}
+  .item:nth-child(even){left:50%}
+  .item .dot{
+    position:absolute;top:26px;width:18px;height:18px;border-radius:50%;
+    background:var(--accent);border:4px solid var(--bg2);box-shadow:0 0 0 3px var(--line);
+  }
+  .item:nth-child(odd) .dot{right:-9px}
+  .item:nth-child(even) .dot{left:-9px}
+  .box{
+    background:var(--card);border:1px solid rgba(255,255,255,.08);
+    border-radius:14px;padding:16px 18px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+  }
+  .box .fecha{color:var(--accent);font-weight:700;font-size:.9rem;margin-bottom:4px}
+  .box h3{font-size:1.12rem;margin-bottom:8px;color:var(--accent2)}
+  .box p{color:var(--muted);font-size:.92rem;line-height:1.55}
+  .era-label{
+    text-align:center;margin:26px auto 6px;max-width:960px;
+  }
+  .era-label span{
+    display:inline-block;background:var(--line);color:#fff;
+    padding:6px 22px;border-radius:30px;font-weight:600;letter-spacing:.5px;
+    font-size:.9rem;box-shadow:0 4px 14px rgba(108,123,255,.4);
+  }
+  footer{text-align:center;color:var(--muted);margin-top:40px;font-size:.85rem}
+  @media(max-width:720px){
+    .timeline::before{left:22px}
+    .item,.item:nth-child(even){width:100%;left:0;text-align:left;padding-left:52px;padding-right:14px}
+    .item:nth-child(odd){text-align:left}
+    .item:nth-child(odd) .dot,.item:nth-child(even) .dot{left:13px;right:auto}
+    header h1{font-size:1.6rem}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Línea de Tiempo — Historia de la Filosofía</h1>
+  <p>Desde sus inicios hasta la actualidad</p>
+  <div class="datos">
+    <div><b>Estudiante:</b> Anny Yamileth Amaya Vijil</div>
+    <div><b>Número de cuenta:</b> 202510010141</div>
+    <div><b>Asignatura:</b> Filosofía</div>
+  </div>
+</header>
+
+<div class="filtros" id="filtros">
+  <button class="active" data-era="todas">Todas</button>
+  <button data-era="Antigua">Filosofía Antigua</button>
+  <button data-era="Medieval">Filosofía Medieval</button>
+  <button data-era="Moderna">Filosofía Moderna</button>
+  <button data-era="Contemporánea">Contemporánea</button>
+  <button data-era="Actual">Actual</button>
+</div>
+
+<div class="timeline" id="timeline"></div>
+
+<footer>Línea de tiempo interactiva — organizada cronológicamente · Filosofía</footer>
+
+<script>
+const data = [
+  {era:"Antigua", fecha:"600 a. C.", titulo:"Inicio de la Filosof\u00eda", texto:"La filosof\u00eda surgi\u00f3 en la Antigua Grecia aproximadamente en el siglo VI a. C. Los primeros fil\u00f3sofos buscaron explicaciones racionales sobre la naturaleza y el origen de las cosas, en lugar de depender solamente de los mitos."},
+  {era:"Antigua", fecha:"624\u2013546 a. C.", titulo:"Tales de Mileto", texto:"Fue uno de los primeros fil\u00f3sofos de la Antigua Grecia. Intent\u00f3 explicar el origen de la naturaleza mediante la raz\u00f3n y consideraba que el agua era el principio fundamental de todas las cosas."},
+  {era:"Antigua", fecha:"570\u2013495 a. C.", titulo:"Pit\u00e1goras", texto:"Fue fil\u00f3sofo y matem\u00e1tico. Pensaba que los n\u00fameros eran fundamentales para comprender el orden y la estructura del universo."},
+  {era:"Antigua", fecha:"470\u2013399 a. C.", titulo:"S\u00f3crates", texto:"Se interes\u00f3 por el ser humano, la moral y la b\u00fasqueda de la verdad. Utilizaba preguntas para que las personas reflexionaran sobre sus propias ideas y conocimientos."},
+  {era:"Antigua", fecha:"427\u2013347 a. C.", titulo:"Plat\u00f3n", texto:"Fue disc\u00edpulo de S\u00f3crates y maestro de Arist\u00f3teles. Desarroll\u00f3 la teor\u00eda de las Ideas y reflexion\u00f3 sobre el conocimiento, la justicia, la pol\u00edtica y la realidad."},
+  {era:"Antigua", fecha:"384\u2013322 a. C.", titulo:"Arist\u00f3teles", texto:"Fue alumno de Plat\u00f3n y realiz\u00f3 importantes aportes a la l\u00f3gica, la \u00e9tica, la pol\u00edtica, la ciencia y la filosof\u00eda. Busc\u00f3 comprender la realidad mediante la observaci\u00f3n y el razonamiento."},
+  {era:"Medieval", fecha:"354\u2013430", titulo:"San Agust\u00edn de Hipona", texto:"Fue uno de los principales pensadores cristianos de la Antig\u00fcedad tard\u00eda. Reflexion\u00f3 sobre Dios, la fe, el conocimiento y el ser humano, relacionando la filosof\u00eda con el cristianismo."},
+  {era:"Medieval", fecha:"1225\u20131274", titulo:"Santo Tom\u00e1s de Aquino", texto:"Fue uno de los pensadores m\u00e1s importantes de la filosof\u00eda medieval. Intent\u00f3 relacionar la raz\u00f3n y la fe, utilizando ideas de Arist\u00f3teles para explicar distintos aspectos de la doctrina cristiana."},
+  {era:"Moderna", fecha:"1596\u20131650", titulo:"Ren\u00e9 Descartes", texto:"Es considerado uno de los principales representantes de la filosof\u00eda moderna. Utiliz\u00f3 la duda como m\u00e9todo para buscar conocimientos seguros y afirm\u00f3: \u201cPienso, luego existo\u201d."},
+  {era:"Moderna", fecha:"1632\u20131704", titulo:"John Locke", texto:"Defendi\u00f3 la idea de que gran parte de nuestro conocimiento proviene de la experiencia. Sus ideas tambi\u00e9n influyeron en la pol\u00edtica y en la defensa de los derechos individuales."},
+  {era:"Moderna", fecha:"1711\u20131776", titulo:"David Hume", texto:"Fue un fil\u00f3sofo escoc\u00e9s relacionado con el empirismo. Consideraba que la experiencia tiene un papel fundamental en el conocimiento y cuestion\u00f3 algunas ideas aceptadas como seguras."},
+  {era:"Moderna", fecha:"1724\u20131804", titulo:"Immanuel Kant", texto:"Intent\u00f3 explicar c\u00f3mo obtenemos conocimiento y cu\u00e1les son sus l\u00edmites. Tambi\u00e9n desarroll\u00f3 importantes ideas sobre la moral y la libertad humana."},
+  {era:"Contempor\u00e1nea", fecha:"1770\u20131831", titulo:"Georg Wilhelm Friedrich Hegel", texto:"Desarroll\u00f3 una filosof\u00eda centrada en la historia, la sociedad y el desarrollo de las ideas. Consideraba que el pensamiento y la realidad se desarrollan mediante procesos de cambio y contradicci\u00f3n."},
+  {era:"Contempor\u00e1nea", fecha:"1818\u20131883", titulo:"Karl Marx", texto:"Analiz\u00f3 la sociedad, la econom\u00eda y las relaciones entre las diferentes clases sociales. Sus ideas tuvieron gran influencia en la filosof\u00eda, la pol\u00edtica y la econom\u00eda."},
+  {era:"Contempor\u00e1nea", fecha:"1844\u20131900", titulo:"Friedrich Nietzsche", texto:"Cuestion\u00f3 muchas ideas tradicionales sobre la moral, la religi\u00f3n y la cultura. Defendi\u00f3 la necesidad de que el ser humano reflexionara y creara sus propios valores."},
+  {era:"Contempor\u00e1nea", fecha:"1856\u20131939", titulo:"Sigmund Freud", texto:"Desarroll\u00f3 el psicoan\u00e1lisis y estudi\u00f3 la importancia de los procesos inconscientes en la conducta humana. Sus ideas influyeron en la psicolog\u00eda, la cultura y la filosof\u00eda."},
+  {era:"Contempor\u00e1nea", fecha:"1905\u20131980", titulo:"Jean-Paul Sartre", texto:"Fue uno de los principales representantes del existencialismo. Reflexion\u00f3 sobre la libertad, la responsabilidad y las decisiones que toma cada persona durante su vida."},
+  {era:"Actual", fecha:"1906\u20131975", titulo:"Hannah Arendt", texto:"Reflexion\u00f3 sobre la pol\u00edtica, la libertad, la responsabilidad y la vida en sociedad. Sus ideas ayudaron a comprender diferentes problemas pol\u00edticos y sociales del siglo XX."},
+  {era:"Actual", fecha:"2000\u2013actualidad", titulo:"Filosof\u00eda del siglo XXI", texto:"La filosof\u00eda actual estudia temas relacionados con la tecnolog\u00eda, la inteligencia artificial, la \u00e9tica, el medio ambiente, la pol\u00edtica, la ciencia y los cambios de la sociedad. Contin\u00faa ayudando a reflexionar sobre los problemas del mundo actual."}
+];
+
+const tl = document.getElementById('timeline');
+
+function render(era){
+  tl.innerHTML = '';
+  const list = era==='todas' ? data : data.filter(d=>d.era===era);
+  list.forEach(d=>{
+    const it = document.createElement('div');
+    it.className='item';
+    it.innerHTML = '<span class="dot"></span><div class="box">'+
+      '<div class="fecha">'+d.fecha+'</div>'+
+      '<h3>'+d.titulo+'</h3>'+
+      '<p>'+d.texto+'</p></div>';
+    tl.appendChild(it);
+  });
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.item').forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('show'), i*70);
+    });
+  });
+}
+
+document.getElementById('filtros').addEventListener('click', e=>{
+  if(e.target.tagName!=='BUTTON') return;
+  document.querySelectorAll('#filtros button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  render(e.target.dataset.era);
+});
+
+render('todas');
+</script>
+</body>
+</html>
